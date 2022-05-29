@@ -5,7 +5,7 @@ import {
   IsOptional,
   Length,
 } from 'class-validator';
-import { UserProvider } from '@/users/types';
+import { UserProvider, UserRole } from '@/users/types';
 
 export class CreateUserDto {
   @IsEmail()
@@ -23,5 +23,10 @@ export class CreateUserDto {
   @IsEnum(UserProvider)
   provider?: UserProvider;
 
+  @IsOptional()
+  @IsEnum(UserRole)
+  role?: UserRole;
+
+  @IsOptional()
   tel?: string;
 }

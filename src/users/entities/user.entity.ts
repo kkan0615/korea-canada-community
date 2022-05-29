@@ -1,6 +1,6 @@
 import { Column, Entity } from 'typeorm';
 import { defaultEntity } from '@/types/databases';
-import { UserProvider } from '@/users/types';
+import { UserProvider, UserRole } from '@/users/types';
 
 @Entity('users')
 export class User extends defaultEntity {
@@ -25,6 +25,12 @@ export class User extends defaultEntity {
     default: UserProvider.local,
   })
   provider: UserProvider;
+
+  @Column({
+    width: 20,
+    default: UserRole.user,
+  })
+  role: UserRole;
 
   @Column({
     width: 50,

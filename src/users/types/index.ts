@@ -3,3 +3,9 @@ export enum UserProvider {
   google = 'google',
   kakao = 'kakao',
 }
+
+export enum UserRole {
+  user = 'user',
+  admin = 'admin',
+  developer = 'developer',
+}
