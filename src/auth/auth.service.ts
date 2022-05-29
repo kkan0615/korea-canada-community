@@ -11,28 +11,6 @@ export class AuthService {
     private jwtTokenService: JwtService,
   ) {}
 
-  async validateUser(payload: Pick<User, 'email' | 'password' | 'provider'>) {
-    try {
-      const user = await this.usersService.findByEmailAndProvider(
-        payload.email,
-        payload.provider,
-      );
-
-      // @TODO: Add bcrypt
-      const isMatch = user && user.password === payload.password;
-      if (isMatch) {
-        delete user.password; // Remove password
-
-        return user;
-      }
-
-      throw new UnauthorizedException('userId and password are not match');
-    } catch (e) {
-      console.error(e);
-      throw e;
-    }
-  }
-
   async login(payload: Pick<User, 'email' | 'password'>) {
     try {
       const user = await this.usersService.findByEmailAndProvider(
