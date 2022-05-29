@@ -3,6 +3,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import * as bcrypt from 'bcrypt';
 import { User } from '@/users/entities/user.entity';
 import { InsertedResponse } from '@/types/responses/insert';
 import { DeletedResponse } from '@/types/responses/delete';
@@ -37,6 +38,11 @@ export class UsersService {
       }
 
       /* Save the user data */
+      // Bcrypt password
+      createUserDto.password = await bcrypt.hash(
+        createUserDto.password,
+        Number(process.env.BCRYPT_SALT),
+      );
       const inserted = await this.usersRepository.save(createUserDto);
 
       const resData: InsertedResponse = {
@@ -65,6 +71,20 @@ export class UsersService {
         id,
       },
     });
+  }
+
+  async findByEmailAndProvider(email: string, provider = UserProvider.local) {
+    try {
+      return await this.usersRepository.findOne({
+        where: {
+          email,
+          provider,
+        },
+      });
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {
