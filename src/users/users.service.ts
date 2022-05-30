@@ -9,6 +9,7 @@ import { InsertedResponse } from '@/types/responses/insert';
 import { DeletedResponse } from '@/types/responses/delete';
 import { UserProvider } from '@/users/types';
 import { FindAllUserDto } from '@/users/dto/findAll-user.dto';
+import { UpdatedResponse } from '@/types/responses/update';
 
 @Injectable()
 export class UsersService {
@@ -55,22 +56,48 @@ export class UsersService {
     }
   }
 
-  findAll(query: FindAllUserDto) {
-    return this.usersRepository.findAndCount({
-      take: query.take,
-      skip: query.skip,
-      where: {
-        isActive: true,
-      },
-    });
+  async findAll(query: FindAllUserDto) {
+    try {
+      const userList = await this.usersRepository.findAndCount({
+        take: query.take,
+        skip: query.skip,
+        where: {
+          isActive: true,
+        },
+      });
+
+      /**
+       * Exclude some fields
+       */
+      userList[0] = userList[0].map((data) => {
+        delete data.password;
+
+        return data;
+      });
+
+      return userList;
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
   }
 
-  findOne(id: number) {
-    return this.usersRepository.findOne({
-      where: {
-        id,
-      },
-    });
+  async findOne(id: number) {
+    try {
+      const user = await this.usersRepository.findOne({
+        where: {
+          id,
+        },
+      });
+
+      /* Exclude some fields */
+      delete user.password;
+
+      return user;
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
   }
 
   async findByEmailAndProvider(email: string, provider = UserProvider.local) {
@@ -87,8 +114,17 @@ export class UsersService {
     }
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async update(id: number, updateUserDto: UpdateUserDto) {
+    try {
+      const updated = await this.usersRepository.update(id, updateUserDto);
+      const resData: UpdatedResponse = {
+        updatedCount: updated.affected || 0,
+      };
+      return resData;
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
   }
 
   async remove(id: number) {

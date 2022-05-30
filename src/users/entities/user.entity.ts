@@ -46,4 +46,9 @@ export class User extends defaultEntity {
 
   @Column({ default: true })
   isActive: boolean;
+
+  @Column({
+    nullable: true,
+  })
+  refreshToken?: string;
 }
