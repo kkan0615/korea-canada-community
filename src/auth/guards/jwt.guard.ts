@@ -1,6 +1,7 @@
 import {
   ExecutionContext,
   Injectable,
+  Logger,
   UnauthorizedException,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
@@ -10,6 +11,8 @@ import { User } from '@/users/entities/user.entity';
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
+  private readonly logger = new Logger(JwtAuthGuard.name);
+
   constructor(
     private readonly jwtService: JwtService,
     private readonly authService: AuthService,
@@ -57,7 +60,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     } catch (e) {
       req.headers.authorization = undefined;
       if (e.message !== 'jwt expired') {
-        console.error(e);
+        this.logger.error(e.message);
       }
 
       return false;

@@ -2,6 +2,7 @@ import {
   HttpException,
   HttpStatus,
   Injectable,
+  Logger,
   UnauthorizedException,
 } from '@nestjs/common';
 import { UsersService } from '@/users/users.service';
@@ -11,6 +12,8 @@ import { User } from '@/users/entities/user.entity';
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     private usersService: UsersService,
     private jwtTokenService: JwtService,
@@ -53,7 +56,7 @@ export class AuthService {
 
       throw new UnauthorizedException('userId and password are not match');
     } catch (e) {
-      console.error(e);
+      this.logger.error(e.message);
       throw e;
     }
   }
@@ -68,7 +71,7 @@ export class AuthService {
 
       return user;
     } catch (e) {
-      console.error(e);
+      this.logger.error(e.message);
       throw e;
     }
   }
@@ -92,7 +95,7 @@ export class AuthService {
 
       return updated;
     } catch (e) {
-      console.error(e);
+      this.logger.error(e.message);
       throw e;
     }
   }
@@ -144,7 +147,7 @@ export class AuthService {
         }),
       };
     } catch (e) {
-      console.error(e);
+      this.logger.error(e.message);
       throw e;
     }
   }

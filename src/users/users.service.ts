@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -13,6 +13,8 @@ import { UpdatedResponse } from '@/types/responses/update';
 
 @Injectable()
 export class UsersService {
+  private readonly logger = new Logger(UsersService.name);
+
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
@@ -51,7 +53,7 @@ export class UsersService {
       };
       return resData;
     } catch (e) {
-      console.error(e);
+      this.logger.error(e.message);
       throw e;
     }
   }
@@ -77,7 +79,7 @@ export class UsersService {
 
       return userList;
     } catch (e) {
-      console.error(e);
+      this.logger.error(e.message);
       throw e;
     }
   }
@@ -95,7 +97,7 @@ export class UsersService {
 
       return user;
     } catch (e) {
-      console.error(e);
+      this.logger.error(e.message);
       throw e;
     }
   }
@@ -109,7 +111,7 @@ export class UsersService {
         },
       });
     } catch (e) {
-      console.error(e);
+      this.logger.error(e.message);
       throw e;
     }
   }
@@ -122,7 +124,7 @@ export class UsersService {
       };
       return resData;
     } catch (e) {
-      console.error(e);
+      this.logger.error(e.message);
       throw e;
     }
   }
@@ -137,7 +139,7 @@ export class UsersService {
       };
       return resData;
     } catch (e) {
-      console.error(e);
+      this.logger.error(e.message);
       throw e;
     }
   }
