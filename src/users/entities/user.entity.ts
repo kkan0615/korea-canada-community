@@ -2,6 +2,7 @@ import { Column, Entity, OneToMany } from 'typeorm';
 import { DefaultEntity } from '@/types/systems/databases';
 import { UserProvider, UserRole } from '@/users/types';
 import { BuyAndSell } from '@/buy-and-sell/entities/buy-and-sell.entity';
+import { BuyAndSellComment } from '@/buy-and-sell/entities/buy_and_sell_comment.entity';
 
 @Entity('users')
 export class User extends DefaultEntity {
@@ -56,6 +57,12 @@ export class User extends DefaultEntity {
   })
   refreshToken?: string;
 
+  /** Relations **/
+
+  /* Buy and sell */
   @OneToMany(() => BuyAndSell, (object) => object.Author)
   BuyAndSellList: BuyAndSell[];
+
+  @OneToMany(() => BuyAndSellComment, (object) => object.User)
+  BuyAndSellCommentList: BuyAndSellComment[];
 }
