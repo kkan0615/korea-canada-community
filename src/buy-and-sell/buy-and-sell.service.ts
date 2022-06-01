@@ -66,8 +66,18 @@ export class BuyAndSellService {
     }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} buyAndSell`;
+  async findOne(id: number) {
+    try {
+      return await this.buyAndSellRepository.findOne({
+        where: {
+          id,
+        },
+        relations: ['Author'],
+      });
+    } catch (e) {
+      this.logger.error(e.message);
+      throw e;
+    }
   }
 
   update(id: number, updateBuyAndSellDto: UpdateBuyAndSellDto) {
