@@ -5,11 +5,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { User } from '@/users/entities/user.entity';
-import { InsertedResponse } from '@/types/responses/insert';
-import { DeletedResponse } from '@/types/responses/delete';
+import { InsertedResponse } from '@/types/systems/responses/insert';
+import { DeletedResponse } from '@/types/systems/responses/delete';
 import { UserProvider } from '@/users/types';
-import { FindAllUserDto } from '@/users/dto/findAll-user.dto';
-import { UpdatedResponse } from '@/types/responses/update';
+import { FindAllUserDto } from '@/users/dto/find-all-user.dto';
+import { UpdatedResponse } from '@/types/systems/responses/update';
 
 @Injectable()
 export class UsersService {
@@ -26,7 +26,7 @@ export class UsersService {
       const exUser = await this.usersRepository.findOne({
         where: {
           email: createUserDto.email,
-          provider: createUserDto.provider || UserProvider.local,
+          provider: createUserDto.provider || UserProvider.Local,
         },
       });
       /* If user is already existed */
@@ -92,8 +92,37 @@ export class UsersService {
         },
       });
 
-      /* Exclude some fields */
-      delete user.password;
+      return user;
+    } catch (e) {
+      this.logger.error(e.message);
+      throw e;
+    }
+  }
+
+  async findOneDetail(id: number) {
+    try {
+      const user = await this.usersRepository.findOne({
+        where: {
+          id,
+        },
+        select: {
+          id: true,
+          email: true,
+          password: true,
+          provider: true,
+          tel: true,
+          role: true,
+          nickname: true,
+          isEmailConfirmed: true,
+          isTelConfirmed: true,
+          isActive: true,
+          refreshToken: true,
+          createdAt: true,
+          updatedAt: true,
+          deletedAt: true,
+          BuyAndSellList: true,
+        },
+      });
 
       return user;
     } catch (e) {
@@ -102,12 +131,20 @@ export class UsersService {
     }
   }
 
-  async findByEmailAndProvider(email: string, provider = UserProvider.local) {
+  async findByEmailAndProvider(email: string, provider = UserProvider.Local) {
     try {
       return await this.usersRepository.findOne({
         where: {
           email,
           provider,
+        },
+        select: {
+          id: true,
+          email: true,
+          password: true,
+          role: true,
+          provider: true,
+          refreshToken: true,
         },
       });
     } catch (e) {
@@ -119,6 +156,7 @@ export class UsersService {
   async update(id: number, updateUserDto: UpdateUserDto) {
     try {
       const updated = await this.usersRepository.update(id, updateUserDto);
+
       const resData: UpdatedResponse = {
         updatedCount: updated.affected || 0,
       };

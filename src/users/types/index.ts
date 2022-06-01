@@ -1,7 +1,7 @@
 export enum UserProvider {
-  local = 'local',
-  google = 'google',
-  kakao = 'kakao',
+  Local = 'local',
+  Google = 'google',
+  Kakao = 'kakao',
 }
 
 export enum UserRole {

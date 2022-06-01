@@ -1,4 +1,4 @@
-import { responseAttribute } from '@/types/responses/index';
+import { responseAttribute } from '@/types/systems/responses/index';
 
 export interface UpdatedResponse extends responseAttribute {
   updatedCount: number;

@@ -1,9 +1,10 @@
-import { Column, Entity } from 'typeorm';
-import { defaultEntity } from '@/types/databases';
+import { Column, Entity, OneToMany } from 'typeorm';
+import { DefaultEntity } from '@/types/systems/databases';
 import { UserProvider, UserRole } from '@/users/types';
+import { BuyAndSell } from '@/buy-and-sell/entities/buy-and-sell.entity';
 
 @Entity('users')
-export class User extends defaultEntity {
+export class User extends DefaultEntity {
   @Column({
     width: 50,
     unique: true,
@@ -16,13 +17,15 @@ export class User extends defaultEntity {
   })
   nickname: string;
 
-  @Column()
+  @Column({
+    select: false,
+  })
   password: string;
 
   @Column({
     enum: UserProvider,
     width: 20,
-    default: UserProvider.local,
+    default: UserProvider.Local,
   })
   provider: UserProvider;
 
@@ -49,6 +52,10 @@ export class User extends defaultEntity {
 
   @Column({
     nullable: true,
+    select: false,
   })
   refreshToken?: string;
+
+  @OneToMany(() => BuyAndSell, (object) => object.Author)
+  BuyAndSellList: BuyAndSell[];
 }

@@ -11,7 +11,7 @@ import {
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { FindAllUserDto } from '@/users/dto/findAll-user.dto';
+import { FindAllUserDto } from '@/users/dto/find-all-user.dto';
 
 @Controller('users')
 export class UsersController {
