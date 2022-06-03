@@ -1,8 +1,10 @@
-import { Column, Entity, OneToMany } from 'typeorm';
+import { Column, Entity, ManyToMany, OneToMany } from 'typeorm';
 import { DefaultEntity } from '@/types/systems/databases';
 import { UserProvider, UserRole } from '@/users/types';
 import { BuyAndSell } from '@/buy-and-sell/entities/buy-and-sell.entity';
-import { BuyAndSellComment } from '@/buy-and-sell/entities/buy_and_sell_comment.entity';
+import { BuyAndSellComment } from '@/buy-and-sell/entities//buy-and-sell-comment.entity';
+import { BuyAndSellLike } from '@/buy-and-sell/entities/buy-and-sell-like.entity';
+import { JoinColumn } from 'typeorm/browser';
 
 @Entity('users')
 export class User extends DefaultEntity {
@@ -65,4 +67,8 @@ export class User extends DefaultEntity {
 
   @OneToMany(() => BuyAndSellComment, (object) => object.User)
   BuyAndSellCommentList: BuyAndSellComment[];
+
+  // Buy and sell likes
+  @OneToMany(() => BuyAndSellLike, (object) => object.User)
+  BuyAndSellLikes: BuyAndSellLike[];
 }

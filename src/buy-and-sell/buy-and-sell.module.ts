@@ -4,12 +4,15 @@ import { BuyAndSellController } from './buy-and-sell.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BuyAndSell } from '@/buy-and-sell/entities/buy-and-sell.entity';
 import { UsersModule } from '@/users/users.module';
-import { BuyAndSellComment } from '@/buy-and-sell/entities/buy_and_sell_comment.entity';
+import { BuyAndSellComment } from '@/buy-and-sell/entities//buy-and-sell-comment.entity';
+import { AuthModule } from '@/auth/auth.module';
+import { BuyAndSellLike } from '@/buy-and-sell/entities/buy-and-sell-like.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([BuyAndSell, BuyAndSellComment]),
+    TypeOrmModule.forFeature([BuyAndSell, BuyAndSellComment, BuyAndSellLike]),
     UsersModule,
+    AuthModule,
   ],
   exports: [TypeOrmModule, BuyAndSellService],
   controllers: [BuyAndSellController],

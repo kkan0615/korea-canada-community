@@ -61,8 +61,8 @@ export class UsersService {
   async findAll(query: FindAllUserDto) {
     try {
       const userList = await this.usersRepository.findAndCount({
-        take: query.take,
-        skip: query.skip,
+        take: query.take ? parseInt(query.take) : undefined,
+        skip: query.skip ? parseInt(query.skip) : undefined,
         where: {
           isActive: true,
         },

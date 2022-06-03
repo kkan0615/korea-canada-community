@@ -7,6 +7,8 @@ import {
   Param,
   Delete,
   Query,
+  Request,
+  UseGuards,
 } from '@nestjs/common';
 import { BuyAndSellService } from './buy-and-sell.service';
 import { CreateBuyAndSellDto } from './dto/create-buy-and-sell.dto';
@@ -14,6 +16,7 @@ import { UpdateBuyAndSellDto } from './dto/update-buy-and-sell.dto';
 import { FindAllBuyAndSellDto } from '@/buy-and-sell/dto/find-all-buy-and-sell.dto';
 import { FindAllBuyAndSellCommentDto } from '@/buy-and-sell/dto/find-all-buy-and-sell-comment.dto';
 import { CreateBuyAndSellCommentDto } from '@/buy-and-sell/dto/create-buy-and-sell-comment.dto';
+import { JwtAuthGuard } from '@/auth/guards/jwt.guard';
 
 @Controller('buy-and-sell')
 export class BuyAndSellController {
@@ -25,8 +28,13 @@ export class BuyAndSellController {
   }
 
   @Get()
-  async findAll(@Query() query: FindAllBuyAndSellDto) {
-    return await this.buyAndSellService.findAll(query);
+  @UseGuards(JwtAuthGuard)
+  async findAll(@Query() query: FindAllBuyAndSellDto, @Request() req) {
+    if (query.cityList) {
+      query.cityList = JSON.parse(query.cityList.toString());
+    }
+
+    return await this.buyAndSellService.findAll(query, req.user);
   }
 
   @Get(':id')
@@ -62,5 +70,17 @@ export class BuyAndSellController {
     @Query() query: FindAllBuyAndSellCommentDto,
   ) {
     return this.buyAndSellService.findAllComments(+id, query);
+  }
+
+  @Post(':id/my/like')
+  @UseGuards(JwtAuthGuard)
+  updateLike(@Param('id') id: string, @Request() req) {
+    return this.buyAndSellService.createLike(+id, req.user.id);
+  }
+
+  @Delete(':id/my/like')
+  @UseGuards(JwtAuthGuard)
+  removeLike(@Param('id') id: string, @Request() req) {
+    return this.buyAndSellService.removeLike(+id, req.user.id);
   }
 }

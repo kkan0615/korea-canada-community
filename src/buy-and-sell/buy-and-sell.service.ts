@@ -2,16 +2,18 @@ import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { CreateBuyAndSellDto } from './dto/create-buy-and-sell.dto';
 import { UpdateBuyAndSellDto } from './dto/update-buy-and-sell.dto';
 import { BuyAndSell } from '@/buy-and-sell/entities/buy-and-sell.entity';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindAllBuyAndSellDto } from '@/buy-and-sell/dto/find-all-buy-and-sell.dto';
 import { User } from '@/users/entities/user.entity';
 import { InsertedResponse } from '@/types/systems/responses/insert';
 import { CreateBuyAndSellCommentDto } from '@/buy-and-sell/dto/create-buy-and-sell-comment.dto';
-import { BuyAndSellComment } from '@/buy-and-sell/entities/buy_and_sell_comment.entity';
+import { BuyAndSellComment } from '@/buy-and-sell/entities//buy-and-sell-comment.entity';
 import { FindAllBuyAndSellCommentDto } from '@/buy-and-sell/dto/find-all-buy-and-sell-comment.dto';
 import { UpdateBuyAndSellCommentDto } from '@/buy-and-sell/dto/update-buy-and-sell-comment-dto';
 import { UpdatedResponse } from '@/types/systems/responses/update';
+import { DeletedResponse } from '@/types/systems/responses/delete';
+import { BuyAndSellLike } from '@/buy-and-sell/entities/buy-and-sell-like.entity';
 
 @Injectable()
 export class BuyAndSellService {
@@ -22,6 +24,8 @@ export class BuyAndSellService {
     private buyAndSellRepository: Repository<BuyAndSell>,
     @InjectRepository(BuyAndSellComment)
     private buyAndSellCommentRepository: Repository<BuyAndSellComment>,
+    @InjectRepository(BuyAndSellLike)
+    private buyAndSellLikeRepository: Repository<BuyAndSellLike>,
     @InjectRepository(User)
     private usersRepository: Repository<User>,
   ) {}
@@ -59,12 +63,26 @@ export class BuyAndSellService {
     }
   }
 
-  async findAll(findAllBuyAndSellDto: FindAllBuyAndSellDto) {
+  async findAll(query: FindAllBuyAndSellDto, currUser: User | undefined) {
     try {
       return await this.buyAndSellRepository.findAndCount({
-        take: findAllBuyAndSellDto.take,
-        skip: findAllBuyAndSellDto.skip,
-        relations: ['Author'],
+        take: query.take ? parseInt(query.take) : undefined,
+        skip: query.skip ? parseInt(query.skip) : undefined,
+        relations: {
+          Author: true,
+          Likes: true,
+        },
+        where: {
+          city: query.cityList ? In(query.cityList) : undefined,
+          Likes: {
+            // id: currUser ? currUser.id : undefined,
+          },
+        },
+        select: {
+          Likes: {
+            id: true,
+          },
+        },
       });
     } catch (e) {
       this.logger.error(e.message);
@@ -169,7 +187,7 @@ export class BuyAndSellService {
 
   async findAllComments(
     buyAndSellId: number,
-    findAllBuyAndSellCommentDto: FindAllBuyAndSellCommentDto,
+    query: FindAllBuyAndSellCommentDto,
   ) {
     try {
       return await this.buyAndSellCommentRepository.findAndCount({
@@ -178,8 +196,8 @@ export class BuyAndSellService {
             id: buyAndSellId,
           },
         },
-        take: findAllBuyAndSellCommentDto.take,
-        skip: findAllBuyAndSellCommentDto.skip,
+        take: query.take ? parseInt(query.take) : undefined,
+        skip: query.skip ? parseInt(query.skip) : undefined,
         relations: ['User', 'Parent'],
         select: {
           Parent: {
@@ -215,5 +233,85 @@ export class BuyAndSellService {
 
   removeComment(id: number) {
     return `This action removes a #${id} buyAndSellComment`;
+  }
+
+  /** Like service **/
+  async createLike(id: number, userId: number) {
+    try {
+      const buyAndSell = await this.buyAndSellRepository.findOne({
+        where: {
+          id,
+        },
+      });
+      if (!buyAndSell) {
+        throw new HttpException(
+          {
+            status: HttpStatus.BAD_REQUEST,
+            error: 'Fail to find buy and sell',
+          },
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      const inserted = await this.buyAndSellLikeRepository.save({
+        BuyAndSell: buyAndSell,
+        User: { id: userId } as User,
+      });
+
+      const resData: InsertedResponse = {
+        insertedId: inserted.id,
+      };
+
+      return resData;
+    } catch (e) {
+      this.logger.error(e.message);
+      throw e;
+    }
+  }
+
+  async removeLike(id: number, userId: number) {
+    try {
+      const buyAndSell = await this.buyAndSellRepository.findOne({
+        where: {
+          id,
+        },
+      });
+      if (!buyAndSell) {
+        throw new HttpException(
+          {
+            status: HttpStatus.BAD_REQUEST,
+            error: 'Fail to find buy and sell',
+          },
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      const like = await this.buyAndSellLikeRepository.findOne({
+        where: {
+          BuyAndSell: { id: buyAndSell.id },
+          User: { id: userId },
+        },
+      });
+      if (!like) {
+        throw new HttpException(
+          {
+            status: HttpStatus.BAD_REQUEST,
+            error: 'Fail to find buy and sell like',
+          },
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      const deleted = await this.buyAndSellLikeRepository.delete(like.id);
+
+      const resData: DeletedResponse = {
+        count: deleted.affected || 0,
+      };
+
+      return resData;
+    } catch (e) {
+      this.logger.error(e.message);
+      throw e;
+    }
   }
 }

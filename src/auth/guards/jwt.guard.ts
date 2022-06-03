@@ -31,7 +31,8 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
         ? req.headers.authorization.split('Bearer')[1].trim()
         : '';
       if (!accessToken) {
-        throw new UnauthorizedException('Access token is not set');
+        // throw new UnauthorizedException('Access token is not set');
+        return false;
       }
 
       // Check access token time
@@ -72,7 +73,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
   }
 
   handleRequest(err, user) {
-    if (err || !user) {
+    if (err) {
       throw new UnauthorizedException();
     }
 
