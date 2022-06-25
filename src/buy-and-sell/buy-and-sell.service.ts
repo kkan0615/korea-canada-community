@@ -5,7 +5,7 @@ import { BuyAndSell } from '@/buy-and-sell/entities/buy-and-sell.entity';
 import { In, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindAllBuyAndSellDto } from '@/buy-and-sell/dto/find-all-buy-and-sell.dto';
-import { User } from '@/users/entities/user.entity';
+import { allowedUserRelation, User } from '@/users/entities/user.entity';
 import { InsertedResponse } from '@/types/systems/responses/insert';
 import { CreateBuyAndSellCommentDto } from '@/buy-and-sell/dto/create-buy-and-sell-comment.dto';
 import { BuyAndSellComment } from '@/buy-and-sell/entities//buy-and-sell-comment.entity';
@@ -97,6 +97,9 @@ export class BuyAndSellService {
           id,
         },
         relations: ['Author'],
+        select: {
+          Author: allowedUserRelation,
+        },
       });
     } catch (e) {
       this.logger.error(e.message);
@@ -121,8 +124,18 @@ export class BuyAndSellService {
     }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} buyAndSell`;
+  async remove(id: number) {
+    try {
+      await this.buyAndSellRepository.softDelete(id);
+
+      const resData: DeletedResponse = {
+        count: 1,
+      };
+      return resData;
+    } catch (e) {
+      this.logger.error(e.message);
+      throw e;
+    }
   }
 
   /** Comment service **/
@@ -231,8 +244,18 @@ export class BuyAndSellService {
     }
   }
 
-  removeComment(id: number) {
-    return `This action removes a #${id} buyAndSellComment`;
+  async removeComment(id: number) {
+    try {
+      await this.buyAndSellCommentRepository.softDelete(id);
+
+      const resData: DeletedResponse = {
+        count: 1,
+      };
+      return resData;
+    } catch (e) {
+      this.logger.error(e.message);
+      throw e;
+    }
   }
 
   /** Like service **/

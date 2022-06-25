@@ -1,10 +1,9 @@
-import { Column, Entity, ManyToMany, OneToMany } from 'typeorm';
+import { Column, Entity, FindOptionsSelect, OneToMany } from 'typeorm';
 import { DefaultEntity } from '@/types/systems/databases';
 import { UserProvider, UserRole } from '@/users/types';
 import { BuyAndSell } from '@/buy-and-sell/entities/buy-and-sell.entity';
 import { BuyAndSellComment } from '@/buy-and-sell/entities//buy-and-sell-comment.entity';
 import { BuyAndSellLike } from '@/buy-and-sell/entities/buy-and-sell-like.entity';
-import { JoinColumn } from 'typeorm/browser';
 
 @Entity('users')
 export class User extends DefaultEntity {
@@ -72,3 +71,13 @@ export class User extends DefaultEntity {
   @OneToMany(() => BuyAndSellLike, (object) => object.User)
   BuyAndSellLikes: BuyAndSellLike[];
 }
+
+export const allowedUserRelation: FindOptionsSelect<User> = {
+  id: true,
+  nickname: true,
+  email: true,
+  isTelConfirmed: true,
+  isEmailConfirmed: true,
+  tel: true,
+  role: true,
+};

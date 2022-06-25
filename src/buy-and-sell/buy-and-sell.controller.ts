@@ -72,6 +72,11 @@ export class BuyAndSellController {
     return this.buyAndSellService.findAllComments(+id, query);
   }
 
+  @Delete('comment/:id')
+  async removeComment(@Param('id') id: string) {
+    return await this.buyAndSellService.removeComment(+id);
+  }
+
   @Post(':id/my/like')
   @UseGuards(JwtAuthGuard)
   updateLike(@Param('id') id: string, @Request() req) {
